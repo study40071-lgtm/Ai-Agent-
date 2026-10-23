@@ -1,6 +1,6 @@
 name: Build Android APK
 
-on:
+'on':
 workflow_dispatch:
 
 permissions:
@@ -9,11 +9,17 @@ contents: read
 jobs:
 build:
 runs-on: ubuntu-latest
-steps:
-- name: Checkout repository
-uses: actions/checkout@v4
 
 ```
+steps:
+  - name: Checkout repository
+    uses: actions/checkout@v4
+
+  - name: Check project ZIP
+    run: |
+      test -f VideoPilot-Android-Project.zip || { echo "ERROR: VideoPilot-Android-Project.zip not found in repository root"; exit 1; }
+      unzip -t VideoPilot-Android-Project.zip
+
   - name: Extract Android project ZIP
     run: unzip VideoPilot-Android-Project.zip -d project
 
@@ -27,6 +33,12 @@ uses: actions/checkout@v4
     uses: gradle/actions/setup-gradle@v4
     with:
       gradle-version: '8.9'
+
+  - name: Verify Android project files
+    run: |
+      find project -maxdepth 5 -type f
+      test -f project/settings.gradle || { echo "ERROR: settings.gradle not found at project root"; exit 1; }
+      test -f project/app/build.gradle || { echo "ERROR: app/build.gradle not found"; exit 1; }
 
   - name: Build APK
     working-directory: project
