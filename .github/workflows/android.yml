@@ -9,15 +9,13 @@ contents: read
 jobs:
 build:
 runs-on: ubuntu-latest
+steps:
+- name: Checkout repository
+uses: actions/checkout@v4
 
 ```
-steps:
-  - name: Checkout repository
-    uses: actions/checkout@v4
-
   - name: Extract Android project ZIP
-    run: |
-      unzip VideoPilot-Android-Project.zip -d project
+    run: unzip VideoPilot-Android-Project.zip -d project
 
   - name: Set up Java
     uses: actions/setup-java@v5
