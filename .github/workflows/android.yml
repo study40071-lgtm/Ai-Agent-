@@ -10,7 +10,6 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,8 +26,7 @@ jobs:
           gradle-version: '8.9'
 
       - name: Check project ZIP
-        run: |
-          test -f VideoPilot-Android-Project.zip
+        run: test -f VideoPilot-Android-Project.zip
 
       - name: Extract Android project
         run: |
