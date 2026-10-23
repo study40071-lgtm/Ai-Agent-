@@ -9,23 +9,20 @@ contents: read
 jobs:
 build:
 runs-on: ubuntu-latest
+steps:
+- name: Checkout repository
+uses: actions/checkout@v4
 
 ```
-steps:
-  - name: Checkout repository
-    uses: actions/checkout@v4
-
   - name: Verify ZIP exists
     run: |
       if [ ! -f "VideoPilot-Android-Project.zip" ]; then
-        echo "ERROR: VideoPilot-Android-Project.zip not found"
+        echo "ERROR: ZIP file not found"
         exit 1
       fi
 
   - name: Extract Android project
-    run: |
-      mkdir -p project
-      unzip -o VideoPilot-Android-Project.zip -d project
+    run: unzip -o VideoPilot-Android-Project.zip -d project
 
   - name: Set up Java
     uses: actions/setup-java@v5
@@ -38,23 +35,16 @@ steps:
     with:
       gradle-version: '8.9'
 
-  - name: Check Android project files
+  - name: Check project files
     run: |
-      find project -maxdepth 4 -type f
-      if [ ! -f "project/settings.gradle" ]; then
-        echo "ERROR: settings.gradle not found"
-        exit 1
-      fi
-      if [ ! -f "project/app/build.gradle" ]; then
-        echo "ERROR: app/build.gradle not found"
-        exit 1
-      fi
+      test -f project/settings.gradle
+      test -f project/app/build.gradle
 
-  - name: Build debug APK
+  - name: Build APK
     working-directory: project
     run: gradle assembleDebug
 
-  - name: Upload APK artifact
+  - name: Upload APK
     uses: actions/upload-artifact@v4
     with:
       name: VideoPilot-debug-apk
