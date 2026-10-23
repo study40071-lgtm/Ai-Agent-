@@ -1,53 +1,47 @@
+
 name: Build Android APK
 
 'on':
-workflow_dispatch:
+  workflow_dispatch:
 
 permissions:
-contents: read
+  contents: read
 
 jobs:
-build:
-runs-on: ubuntu-latest
-steps:
-- name: Checkout repository
-uses: actions/checkout@v4
+  build:
+    runs-on: ubuntu-latest
 
-```
-  - name: Verify ZIP exists
-    run: |
-      if [ ! -f "VideoPilot-Android-Project.zip" ]; then
-        echo "ERROR: ZIP file not found"
-        exit 1
-      fi
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  - name: Extract Android project
-    run: unzip -o VideoPilot-Android-Project.zip -d project
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
 
-  - name: Set up Java
-    uses: actions/setup-java@v5
-    with:
-      distribution: temurin
-      java-version: '17'
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
 
-  - name: Set up Gradle
-    uses: gradle/actions/setup-gradle@v4
-    with:
-      gradle-version: '8.9'
+      - name: Check project ZIP
+        run: |
+          test -f VideoPilot-Android-Project.zip
 
-  - name: Check project files
-    run: |
-      test -f project/settings.gradle
-      test -f project/app/build.gradle
+      - name: Extract Android project
+        run: |
+          mkdir -p project
+          unzip -o VideoPilot-Android-Project.zip -d project
 
-  - name: Build APK
-    working-directory: project
-    run: gradle assembleDebug
+      - name: Build debug APK
+        working-directory: project
+        run: gradle assembleDebug
 
-  - name: Upload APK
-    uses: actions/upload-artifact@v4
-    with:
-      name: VideoPilot-debug-apk
-      path: project/app/build/outputs/apk/debug/*.apk
-      if-no-files-found: error
-```
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: VideoPilot-debug-apk
+          path: project/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
